@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <delegate.hpp>
+#include <wrappers.hpp>
 
 bool compare(int a, int b){ return a == b; }
 
@@ -20,8 +21,22 @@ int main(int argc, char *argv[])
     delegates.push_back(delegate(&mc, &MyClass::compare));
     delegates.push_back(delegate(&mc, &MyClass::compare_const));
 
+    std::cout << "Testing delegates" << std::endl;
     for(auto& d : delegates)
     {
-        std::cout << d(10, 10) << std::endl;
+        std::string ret = d(10, 10) == 0 ? "false" : "true";
+        std::cout << ret << std::endl;
+    }
+
+    std::cout << std::endl;
+    std::vector<std::unique_ptr<i::wrapper>> wrappers;
+    wrappers.push_back(std::make_unique<int_wrapper>(10));
+    wrappers.push_back(std::make_unique<double_wrapper>(10.));
+    wrappers.push_back(std::make_unique<string_wrapper>("hello"));
+
+    std::cout << "Testing type wrappers" << std::endl;
+    for(auto& w : wrappers)
+    {
+        std::cout << "type: " << w->type() << " size: " << w->size() << " bytes" << std::endl;
     }
 }

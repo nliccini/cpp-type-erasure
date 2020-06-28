@@ -8,15 +8,18 @@ namespace erasure
 {
     namespace details
     {
-        template<typename RET, typename... ARGS>
-        class base {
-            public:
-                virtual ~base() = default;
-                virtual RET func(ARGS... args) = 0;
-        };
+        namespace i
+        {
+            template<typename RET, typename... ARGS>
+            class func_wrapper {
+                public:
+                    virtual ~func_wrapper() = default;
+                    virtual RET func(ARGS... args) = 0;
+            };
+        }
 
         template<typename T, typename RET, typename... ARGS>
-        class member_func_wrapper : public base<RET, ARGS...> {
+        class member_func_wrapper : public i::func_wrapper<RET, ARGS...> {
             public:
                 member_func_wrapper(T *t, RET (T::*func)(ARGS...)) : 
                     _t(t), _func(func)
@@ -34,7 +37,7 @@ namespace erasure
 
 
         template<typename T, typename RET, typename... ARGS>
-        class const_member_func_wrapper : public base<RET, ARGS...> {
+        class const_member_func_wrapper : public i::func_wrapper<RET, ARGS...> {
             public:
                 const_member_func_wrapper(const T *t, RET (T::*func)(ARGS...) const) : 
                     _t(t), _func(func)
@@ -51,7 +54,7 @@ namespace erasure
         };
 
         template<typename RET, typename... ARGS>
-        class nonmember_func_wrapper : public base<RET, ARGS...> {
+        class nonmember_func_wrapper : public i::func_wrapper<RET, ARGS...> {
             public:
                 nonmember_func_wrapper(RET (*func)(ARGS...)) :
                     _func(func)
@@ -93,7 +96,7 @@ namespace erasure
             }
 
         private:
-            std::unique_ptr<details::base<RET, ARGS...>> _wrapper;
+            std::unique_ptr<details::i::func_wrapper<RET, ARGS...>> _wrapper;
     };
 
     template<typename T, typename RET, typename... ARGS>

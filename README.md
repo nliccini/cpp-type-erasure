@@ -13,11 +13,13 @@ The delegate pattern makes use of C++ templating to erase type information witho
 
 This library could be implemented using `void *` or inheritance, but those methods do not accomplish both type erasure AND type-safety. 
 
-The `delegate.hpp` header-only library includes one public class called `delegate`. The `details` namespace contains private implementation details not intended for end-use.
+The `delegate.hpp` header-only library includes one public class called `delegate`. The `details` namespace contains private implementation details not intended for end-use. 
+
+<b>NOTE:</b> This library does not support lambda delegates; the concept of using a lamda with a delegate is redundant and can be achieved by defining a global scope function like shown below.
 
 To use the `delegate` class, consider three scenarios:
 
-* A static function
+* A global-scope function
 * A member function
 * A const member function
 

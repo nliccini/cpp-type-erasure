@@ -18,7 +18,7 @@ namespace erasure
         template<typename T, typename RET, typename... ARGS>
         class member_func_wrapper : public base<RET, ARGS...> {
             public:
-                member_func_wrapper(const T* t, RET (T::*func)(ARGS...)) : 
+                member_func_wrapper(T *t, RET (T::*func)(ARGS...)) : 
                     _t(t), _func(func)
                 { }
 
@@ -26,11 +26,12 @@ namespace erasure
                 {
                     return std::invoke(_func, _t, args...);
                 }
-
+            
             private:
-                const T *_t;
+                T* _t;
                 RET (T::*_func)(ARGS...);
         };
+
 
         template<typename T, typename RET, typename... ARGS>
         class const_member_func_wrapper : public base<RET, ARGS...> {
@@ -73,7 +74,7 @@ namespace erasure
     class delegate<RET(ARGS...)> {
         public:
             template<typename T>
-            delegate(const T* t, RET (T::*func)(ARGS...)) :
+            delegate(T* t, RET (T::*func)(ARGS...)) :
                 _wrapper(std::make_unique<details::member_func_wrapper<T, RET, ARGS...>>(t, func))
             { }
             
@@ -96,7 +97,7 @@ namespace erasure
     };
 
     template<typename T, typename RET, typename... ARGS>
-    delegate(const T*, RET(T::*)(ARGS...)) -> delegate<RET(ARGS...)>;
+    delegate(T*, RET(T::*)(ARGS...)) -> delegate<RET(ARGS...)>;
 
     template<typename T, typename RET, typename... ARGS>
     delegate(const T*, RET(T::*)(ARGS...) const) -> delegate<RET(ARGS...)>;
@@ -104,7 +105,5 @@ namespace erasure
     template<typename RET, typename... ARGS>
     delegate(RET(*)(ARGS...)) -> delegate<RET(ARGS...)>;
 }
-
-
 
 #endif // __DELEGATE_H

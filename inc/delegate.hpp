@@ -68,6 +68,22 @@ namespace erasure
             private:         
                 RET (*_func)(ARGS...);
         };
+
+        template<typename RET, typename... ARGS>
+        class func_obj_wrapper : public i::func_wrapper<RET, ARGS...> {
+            public:
+                func_obj_wrapper(std::function<RET(ARGS...)> func) :
+                    _func(func)
+                { }
+
+                RET func(ARGS... args) override
+                {
+                    return std::invoke(_func, args...);
+                }
+
+            private:
+                std::function<RET(ARGS...)> _func;
+        };
     }
 
     template<typename>
@@ -90,6 +106,15 @@ namespace erasure
                 _wrapper(std::make_unique<details::nonmember_func_wrapper<RET, ARGS...>>(func))
             { }
 
+            delegate(std::function<RET(ARGS...)> func) :
+                _wrapper(std::make_unique<details::func_obj_wrapper<RET, ARGS...>>(func))
+            { }
+
+            template<typename Lambda>
+            delegate(Lambda func) :
+                delegate(static_cast<std::function<RET(ARGS...)>>(func))
+            { }
+
             RET operator()(ARGS... args)
             {
                 return _wrapper->func(args...);
@@ -107,6 +132,9 @@ namespace erasure
 
     template<typename RET, typename... ARGS>
     delegate(RET(*)(ARGS...)) -> delegate<RET(ARGS...)>;
+
+    template<typename RET, typename... ARGS>
+    delegate(std::function<RET(ARGS...)>) -> delegate<RET(ARGS...)>;
 }
 
 #endif // __DELEGATE_H

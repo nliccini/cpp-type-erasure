@@ -14,12 +14,15 @@ class MyClass {
 int main(int argc, char *argv[])
 {
     MyClass mc;
+    std::function<bool(int,int)> func = [&](int a, int b){ return mc.compare(a, b); };
 
     using namespace erasure;
     std::vector<delegate<bool(int, int)>> delegates;
     delegates.push_back(delegate(compare));
     delegates.push_back(delegate(&mc, &MyClass::compare));
     delegates.push_back(delegate(&mc, &MyClass::compare_const));
+    delegates.push_back(delegate(func));
+    delegates.push_back(delegate<bool(int,int)>([mc](int a, int b){ return mc.compare_const(a, b); }));
 
     std::cout << "Testing delegates" << std::endl;
     for(auto& d : delegates)

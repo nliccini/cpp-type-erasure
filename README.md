@@ -15,13 +15,17 @@ This library could be implemented using `void *` or inheritance, but those metho
 
 The `delegate.hpp` header-only library includes one public class called `delegate`. The `details` namespace contains private implementation details not intended for end-use. 
 
-<b>NOTE:</b> This library does not support lambda delegates; the concept of using a lamda with a delegate is redundant and can be achieved by defining a global scope function like shown below.
+<b>NOTE:</b> This library does not support automatic type deduction for lambda delegates. You must specify the template parameters for your delegate object if you wish to pass in a lambda as an argument: 
 
-To use the `delegate` class, consider three scenarios:
+    erasure::delegate<bool(int,int)> d([](int a, int b){ return a == b; });
+
+To use the `delegate` class, consider these scenarios:
 
 * A global-scope function
 * A member function
 * A const member function
+* A function object
+* A lambda function 
 
 As long as each function has the same signature, the `delegate` class can be used to encapsulate the functionality without being tied to the source of the function.
 
@@ -40,12 +44,15 @@ As long as each function has the same signature, the `delegate` class can be use
     int main(int argc, char *argv[])
     {
         MyClass mc;
+        std::function<bool(int,int)> func = [&](int a, int b){ return mc.compare(a, b); };
 
         using namespace erasure;
         std::vector<delegate<bool(int, int)>> delegates;
         delegates.push_back(delegate(compare));
         delegates.push_back(delegate(&mc, &MyClass::compare));
         delegates.push_back(delegate(&mc, &MyClass::compare_const));
+        delegates.push_back(delegate(func));
+        delegates.push_back(delegate<bool(int,int)>([mc](int a, int b){ return mc.compare_const(a, b); }));
 
         for(auto& d : delegates)
         {
@@ -55,6 +62,8 @@ As long as each function has the same signature, the `delegate` class can be use
 
 Should produce the following output:
 
+    1
+    1
     1
     1
     1

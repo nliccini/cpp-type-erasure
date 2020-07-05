@@ -21,7 +21,7 @@ namespace erasure
         template<typename T, typename RET, typename... ARGS>
         class member_func_wrapper : public i::func_wrapper<RET, ARGS...> {
             public:
-                member_func_wrapper(T *t, RET (T::*func)(ARGS...)) : 
+                member_func_wrapper(T *t, RET (T::*func)(ARGS...)) :
                     _t(t), _func(func)
                 { }
 
@@ -29,7 +29,7 @@ namespace erasure
                 {
                     return std::invoke(_func, _t, args...);
                 }
-            
+
             private:
                 T* _t;
                 RET (T::*_func)(ARGS...);
@@ -39,7 +39,7 @@ namespace erasure
         template<typename T, typename RET, typename... ARGS>
         class const_member_func_wrapper : public i::func_wrapper<RET, ARGS...> {
             public:
-                const_member_func_wrapper(const T *t, RET (T::*func)(ARGS...) const) : 
+                const_member_func_wrapper(const T *t, RET (T::*func)(ARGS...) const) :
                     _t(t), _func(func)
                 { }
 
@@ -47,7 +47,7 @@ namespace erasure
                 {
                     return std::invoke(_func, _t, args...);
                 }
-            
+
             private:
                 const T* _t;
                 RET (T::*_func)(ARGS...) const;
@@ -63,9 +63,9 @@ namespace erasure
                 RET func(ARGS... args) override
                 {
                     return _func(args...);
-                }   
+                }
 
-            private:         
+            private:
                 RET (*_func)(ARGS...);
         };
 
@@ -96,7 +96,7 @@ namespace erasure
             delegate(T* t, RET (T::*func)(ARGS...)) :
                 _wrapper(std::make_unique<details::member_func_wrapper<T, RET, ARGS...>>(t, func))
             { }
-            
+
             template<typename T>
             delegate(const T* t, RET (T::*func)(ARGS...) const) :
                 _wrapper(std::make_unique<details::const_member_func_wrapper<T, RET, ARGS...>>(t, func))

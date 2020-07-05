@@ -26,7 +26,7 @@ namespace erasure
             { }
 
             size_t size() const override { return sizeof(_impl); }
-            std::string type() const override {return typeid(T).name(); }
+            std::string type() const override { return typeid(T).name(); }
 
             T item() const { return _impl; }
 
